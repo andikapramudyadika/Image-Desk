@@ -12,7 +12,7 @@ Image Desk adalah website statis untuk memproses gambar langsung di browser. Coc
 - Progress bar saat batch diproses.
 - Unduh hasil satu per satu atau semua hasil sekaligus.
 
-## Cara menjalankan
+## Cara menjalankan lokal
 
 Langsung buka `index.html` di browser modern.
 
