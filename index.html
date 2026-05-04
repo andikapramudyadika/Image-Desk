@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Image processor sederhana untuk compress, resize, convert format, dan watermark batch."
+    />
+    <title>Image Desk - Processor & Resizer</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Image Desk</p>
+          <h1>Image Studio</h1>
+        </div>
+        <div class="top-actions">
+          <button class="theme-button" id="themeButton" type="button" title="Ganti tema">
+            <span class="sun-icon" aria-hidden="true"></span>
+            <span class="moon-icon" aria-hidden="true"></span>
+            <span class="sr-only">Ganti tema terang atau gelap</span>
+          </button>
+          <div class="status-pill" id="fileCount">0 gambar</div>
+        </div>
+      </header>
+
+      <section class="workspace" aria-label="Image processing workspace">
+        <aside class="panel controls-panel">
+          <div class="panel-header">
+            <h2>Pengaturan</h2>
+            <button class="icon-button" id="resetButton" type="button" title="Reset pengaturan">
+              <span aria-hidden="true">R</span>
+              <span class="sr-only">Reset pengaturan</span>
+            </button>
+          </div>
+
+          <div class="control-group">
+            <label for="formatSelect">Format output</label>
+            <select id="formatSelect">
+              <option value="image/jpeg">JPG</option>
+              <option value="image/webp">WebP</option>
+              <option value="image/png">PNG</option>
+            </select>
+          </div>
+
+          <div class="control-group">
+            <div class="label-row">
+              <label for="qualityRange">Kualitas</label>
+              <span id="qualityValue">82%</span>
+            </div>
+            <input id="qualityRange" type="range" min="10" max="100" value="82" />
+          </div>
+
+          <div class="quality-preview" id="qualityPreview" hidden>
+            <img id="estimateImage" alt="Preview hasil kompresi" />
+            <div>
+              <strong id="estimateTitle">Estimasi</strong>
+              <p id="estimateText">Pilih gambar untuk melihat perkiraan ukuran.</p>
+              <div class="estimate-grid" id="estimateGrid" hidden>
+                <span>Ukuran preview</span>
+                <b id="estimateSize">-</b>
+                <span>Perkiraan batch</span>
+                <b id="estimateBatch">-</b>
+                <span>Resolusi output</span>
+                <b id="estimateDimensions">-</b>
+              </div>
+            </div>
+          </div>
+
+          <div class="switch-row">
+            <div>
+              <label for="resizeToggle">Resize gambar</label>
+              <p>Ubah ukuran maksimal tanpa merusak rasio.</p>
+            </div>
+            <input id="resizeToggle" type="checkbox" checked />
+          </div>
+
+          <div class="size-grid" id="sizeControls">
+            <div class="control-group">
+              <label for="widthInput">Lebar maks</label>
+              <input id="widthInput" type="number" min="1" value="1600" />
+            </div>
+            <div class="control-group">
+              <label for="heightInput">Tinggi maks</label>
+              <input id="heightInput" type="number" min="1" value="1600" />
+            </div>
+          </div>
+
+          <div class="switch-row">
+            <div>
+              <label for="watermarkToggle">Watermark</label>
+              <p>Tambahkan teks tipis di sudut gambar.</p>
+            </div>
+            <input id="watermarkToggle" type="checkbox" />
+          </div>
+
+          <div class="watermark-box" id="watermarkControls" hidden>
+            <div class="control-group">
+              <label for="watermarkText">Teks watermark</label>
+              <input id="watermarkText" type="text" value="Image Desk" maxlength="48" />
+            </div>
+            <div class="control-group">
+              <label for="positionSelect">Posisi</label>
+              <select id="positionSelect">
+                <option value="bottom-right">Kanan bawah</option>
+                <option value="bottom-left">Kiri bawah</option>
+                <option value="top-right">Kanan atas</option>
+                <option value="top-left">Kiri atas</option>
+                <option value="center">Tengah</option>
+              </select>
+            </div>
+            <div class="control-group">
+              <div class="label-row">
+                <label for="watermarkOpacity">Transparansi</label>
+                <span id="opacityValue">42%</span>
+              </div>
+              <input id="watermarkOpacity" type="range" min="10" max="90" value="42" />
+            </div>
+          </div>
+
+          <button class="primary-button" id="processButton" type="button" disabled>
+            Proses gambar
+          </button>
+          <footer class="app-footer">Copyright © 2026 Andika Pramudya. All rights reserved.</footer>
+        </aside>
+
+        <section class="panel board">
+          <div class="drop-zone" id="dropZone">
+            <input
+              id="fileInput"
+              type="file"
+              accept="image/png,image/jpeg,image/webp"
+              multiple
+            />
+            <div class="drop-visual" aria-hidden="true">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+            <h2>Tarik gambar ke sini</h2>
+            <p>atau pilih banyak file PNG, JPG, dan WebP sekaligus.</p>
+            <button class="secondary-button" id="pickButton" type="button">Pilih gambar</button>
+          </div>
+
+          <div class="progress-card" id="progressCard" hidden>
+            <div class="progress-copy">
+              <span id="progressLabel">Menunggu proses</span>
+              <strong id="progressPercent">0%</strong>
+            </div>
+            <div class="progress-track" aria-label="Progress proses gambar">
+              <div class="progress-fill" id="progressFill"></div>
+            </div>
+          </div>
+
+          <div class="image-list-header">
+            <h2>Daftar gambar</h2>
+            <div class="list-actions">
+              <button class="ghost-button" id="downloadAllButton" type="button" disabled>
+                Unduh semua
+              </button>
+              <button class="ghost-button" id="clearButton" type="button" disabled>Bersihkan</button>
+            </div>
+          </div>
+
+          <div class="image-list" id="imageList">
+            <div class="empty-state">
+              <div class="empty-preview"></div>
+              <p>Belum ada gambar. Setelah dipilih, preview dan hasil proses akan muncul di sini.</p>
+            </div>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <template id="imageItemTemplate">
+      <article class="image-item">
+        <img alt="" />
+        <div class="image-meta">
+          <h3></h3>
+          <p></p>
+          <span class="quality-chip"></span>
+          <div class="result-line"></div>
+        </div>
+        <a class="download-button" hidden>Unduh</a>
+      </article>
+    </template>
+
+    <script src="script.js"></script>
+  </body>
+</html>
